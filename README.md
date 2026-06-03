@@ -1,6 +1,6 @@
 # Phishing URL Detector
 
-Rule-based phishing URL detection system
+Rule based phishing URL detection system
 
 ## Architecture
 
