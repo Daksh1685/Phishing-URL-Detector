@@ -10,13 +10,13 @@ from models.cnn_model import CNN1D
 
 
 def load_and_display_results(model_type='standard'):
-    """Load and display training results."""
+
     
     print("=" * 80)
     print("CNN MODEL TRAINING RESULTS")
     print("=" * 80)
     
-    # Load metrics
+
     metrics_file = f'./models/cnn_{model_type}_metrics.npy'
     predictions_file = f'./models/cnn_{model_type}_predictions.npy'
     model_file = f'./models/cnn_{model_type}_model.pt'
@@ -26,7 +26,7 @@ def load_and_display_results(model_type='standard'):
         print(f"  python train_cnn.py\n")
         return
     
-    # Load results
+
     metrics = np.load(metrics_file, allow_pickle=True).item()
     predictions_data = np.load(predictions_file, allow_pickle=True).item()
     checkpoint = torch.load(model_file, map_location='cpu')
@@ -45,7 +45,7 @@ def load_and_display_results(model_type='standard'):
     print(f"F1 Score:    {metrics['f1']:.4f}")
     print(f"ROC-AUC:     {metrics['roc_auc']:.4f}\n")
     
-    # Confusion matrix
+
     cm = metrics['confusion_matrix']
     print("-" * 80)
     print("CONFUSION MATRIX")
@@ -59,7 +59,7 @@ def load_and_display_results(model_type='standard'):
     print(f"Legitimate    {tn:>8,}    {fp:>8,}    (Specificity: {100*tn/(tn+fp):>6.2f}%)")
     print(f"Phishing      {fn:>8,}    {tp:>8,}    (Sensitivity: {100*tp/(tp+fn):>6.2f}%)\n")
     
-    # Class distribution
+
     y_true = predictions_data['true_labels']
     num_legit = (y_true == 0).sum()
     num_phish = (y_true == 1).sum()
@@ -69,11 +69,11 @@ def load_and_display_results(model_type='standard'):
     print(f"  Phishing:   {num_phish:,} ({100*num_phish/len(y_true):.1f}%)")
     print(f"  Total:      {len(y_true):,}\n")
     
-    # Confidence analysis
+
     probs = predictions_data['probabilities']
     if isinstance(probs, np.ndarray):
         if probs.ndim == 1:
-            # Probs are already the phishing class probabilities
+
             phishing_probs = probs[y_true == 1]
             legit_probs = 1 - probs[y_true == 0]  # Complement for legitimate
         else:
@@ -101,7 +101,7 @@ def load_and_display_results(model_type='standard'):
     print(f"  Std:  {legit_probs.std():.4f}")
     print(f"  >90%: {(legit_probs > 0.9).sum():,} / {len(legit_probs):,}\n")
     
-    # Model info
+
     print("-" * 80)
     print("MODEL INFORMATION")
     print("-" * 80 + "\n")
@@ -115,7 +115,7 @@ def load_and_display_results(model_type='standard'):
     print(f"FC dimensions: {config['fc_dims']}")
     print(f"Flattened dim: {config['flattened_dim']:,}\n")
     
-    # Summary
+
     print("=" * 80)
     print("SUMMARY")
     print("=" * 80 + "\n")
