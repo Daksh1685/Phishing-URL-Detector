@@ -3,17 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-
-class Attention(nn.Module):
-
-    
+class Attention(nn.Module):    
     def __init__(self, input_dim, hidden_dim=None, output_attention_weights=False):
-
-
-
-
-
-
 
         super(Attention, self).__init__()
         self.input_dim = input_dim
@@ -33,19 +24,8 @@ class Attention(nn.Module):
     
     def forward(self, x, mask=None):
 
-
-
-
-
-
-
-
-
-
-
-
         if x.dim() == 2:
-            x = x.unsqueeze(1)  # (batch_size, 1, input_dim)
+            x = x.unsqueeze(1)  
             squeeze_output = True
         else:
             squeeze_output = False
@@ -53,12 +33,12 @@ class Attention(nn.Module):
         batch_size, seq_len, _ = x.shape
         
 
-        query = self.query_projection(x)  # (batch_size, seq_len, hidden_dim)
-        key = self.key_projection(x)      # (batch_size, seq_len, hidden_dim)
-        value = self.value_projection(x)  # (batch_size, seq_len, hidden_dim)
+        query = self.query_projection(x) 
+        key = self.key_projection(x)      
+        value = self.value_projection(x)  
         
 
-        scores = torch.bmm(query, key.transpose(1, 2))  # (batch_size, seq_len, seq_len)
+        scores = torch.bmm(query, key.transpose(1, 2))  
         scores = scores / self.scale
         
 
@@ -66,18 +46,18 @@ class Attention(nn.Module):
             scores = scores.masked_fill(mask == 0, float('-inf'))
         
 
-        attention_weights = F.softmax(scores, dim=-1)  # (batch_size, seq_len, seq_len)
+        attention_weights = F.softmax(scores, dim=-1) 
         
 
-        context = torch.bmm(attention_weights, value)  # (batch_size, seq_len, hidden_dim)
+        context = torch.bmm(attention_weights, value) 
         
 
-        output = self.output_projection(context)  # (batch_size, seq_len, input_dim)
+        output = self.output_projection(context) 
         
 
         if squeeze_output:
-            output = output.squeeze(1)  # (batch_size, input_dim)
-            attention_weights = attention_weights.squeeze(1)  # (batch_size, 1, seq_len) → (batch_size, seq_len)
+            output = output.squeeze(1) 
+            attention_weights = attention_weights.squeeze(1) 
         
         if self.output_attention_weights:
             return output, attention_weights
@@ -86,16 +66,7 @@ class Attention(nn.Module):
 
 
 class MultiHeadAttention(nn.Module):
-
-    
     def __init__(self, input_dim, num_heads=4, hidden_dim=None, output_attention_weights=False):
-
-
-
-
-
-
-
 
         super(MultiHeadAttention, self).__init__()
         self.input_dim = input_dim
@@ -117,20 +88,8 @@ class MultiHeadAttention(nn.Module):
         self.scale = np.sqrt(self.hidden_dim)
     
     def forward(self, x, mask=None):
-
-
-
-
-
-
-
-
-
-
-
-
         if x.dim() == 2:
-            x = x.unsqueeze(1)  # (batch_size, 1, input_dim)
+            x = x.unsqueeze(1)  
             squeeze_output = True
         else:
             squeeze_output = False
@@ -138,20 +97,20 @@ class MultiHeadAttention(nn.Module):
         batch_size, seq_len, _ = x.shape
         
 
-        query = self.query_projection(x)  # (batch_size, seq_len, hidden_dim * num_heads)
+        query = self.query_projection(x)  
         query = query.view(batch_size, seq_len, self.num_heads, self.hidden_dim)
-        query = query.transpose(1, 2)  # (batch_size, num_heads, seq_len, hidden_dim)
+        query = query.transpose(1, 2)  
         
         key = self.key_projection(x)
         key = key.view(batch_size, seq_len, self.num_heads, self.hidden_dim)
-        key = key.transpose(1, 2)  # (batch_size, num_heads, seq_len, hidden_dim)
+        key = key.transpose(1, 2) 
         
         value = self.value_projection(x)
         value = value.view(batch_size, seq_len, self.num_heads, self.hidden_dim)
-        value = value.transpose(1, 2)  # (batch_size, num_heads, seq_len, hidden_dim)
+        value = value.transpose(1, 2)  
         
 
-        scores = torch.matmul(query, key.transpose(-2, -1))  # (batch_size, num_heads, seq_len, seq_len)
+        scores = torch.matmul(query, key.transpose(-2, -1))  
         scores = scores / self.scale
         
 
@@ -159,44 +118,32 @@ class MultiHeadAttention(nn.Module):
             scores = scores.masked_fill(mask == 0, float('-inf'))
         
 
-        attention_weights = F.softmax(scores, dim=-1)  # (batch_size, num_heads, seq_len, seq_len)
+        attention_weights = F.softmax(scores, dim=-1) 
         
 
-        context = torch.matmul(attention_weights, value)  # (batch_size, num_heads, seq_len, hidden_dim)
+        context = torch.matmul(attention_weights, value) 
         
 
-        context = context.transpose(1, 2)  # (batch_size, seq_len, num_heads, hidden_dim)
+        context = context.transpose(1, 2)  
         context = context.contiguous()
-        context = context.view(batch_size, seq_len, self.hidden_dim * self.num_heads)
+        context = context.view(batch_size, seq_len, self.hidden_dim * self.num_heads)       
+        output = self.output_projection(context)  
         
 
-        output = self.output_projection(context)  # (batch_size, seq_len, input_dim)
-        
-
-        attention_weights = attention_weights.mean(dim=1)  # (batch_size, seq_len, seq_len)
+        attention_weights = attention_weights.mean(dim=1)  )
         
 
         if squeeze_output:
-            output = output.squeeze(1)  # (batch_size, input_dim)
-            attention_weights = attention_weights.squeeze(1)  # (batch_size, seq_len)
+            output = output.squeeze(1) 
+            attention_weights = attention_weights.squeeze(1)  
         
         if self.output_attention_weights:
             return output, attention_weights
         else:
             return output
 
-
 class AttentionPool(nn.Module):
-
-    
     def __init__(self, input_dim, use_multi_head=False, num_heads=4):
-
-
-
-
-
-
-
         super(AttentionPool, self).__init__()
         self.input_dim = input_dim
         self.use_multi_head = use_multi_head
@@ -219,29 +166,14 @@ class AttentionPool(nn.Module):
             )
     
     def forward(self, x):
-
-
-
-
-
-
-
-
-
-        batch_size = x.shape[0]
+        batch_size = x.shape[0]   
+        attended, weights = self.attention(x)  
         
-
-        attended, weights = self.attention(x)  # attended: (batch_size, seq_len, input_dim)
+        context = self.context_vector.unsqueeze(0).unsqueeze(0)  
+        scores = torch.sum(attended * context, dim=-1) 
+        pool_weights = F.softmax(scores, dim=-1)  
         
-
-        context = self.context_vector.unsqueeze(0).unsqueeze(0)  # (1, 1, input_dim)
-        scores = torch.sum(attended * context, dim=-1)  # (batch_size, seq_len)
-        
-
-        pool_weights = F.softmax(scores, dim=-1)  # (batch_size, seq_len)
-        
-
-        pooled = torch.sum(attended * pool_weights.unsqueeze(-1), dim=1)  # (batch_size, input_dim)
+        pooled = torch.sum(attended * pool_weights.unsqueeze(-1), dim=1)  
         
         return pooled, pool_weights
 
@@ -253,8 +185,8 @@ if __name__ == "__main__":
     
 
     batch_size = 32
-    input_dim = 2504  # Fused embedding dimension
-    seq_len = 1  # For single URL embedding
+    input_dim = 2504  
+    seq_len = 1  
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
     print(f"\nDevice: {device}")
