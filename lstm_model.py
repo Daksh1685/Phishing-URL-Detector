@@ -1,38 +1,10 @@
-
-
-
-
-
-
 import torch
 import torch.nn as nn
 import logging
 
 logger = logging.getLogger(__name__)
-
-
-class PhishingLSTM(nn.Module):
-
-
-
-
-
-
-
-
-
-
-    
+class PhishingLSTM(nn.Module):   
     def __init__(self, input_dim=2504, hidden_dim=256, num_layers=2, dropout=0.3, num_classes=2):
-
-
-
-
-
-
-
-
-
         super(PhishingLSTM, self).__init__()
         
         self.input_dim = input_dim
@@ -41,10 +13,7 @@ class PhishingLSTM(nn.Module):
         self.num_classes = num_classes
         
         logger.info(f"Initializing PhishingLSTM: input_dim={input_dim}, hidden_dim={hidden_dim}, num_layers={num_layers}")
-        
-
-
-        self.seq_len = 4  # Reshape 2504 → (4, 626)
+        self.seq_len = 4  
         self.embedding_dim = input_dim // self.seq_len
         
 
@@ -80,28 +49,10 @@ class PhishingLSTM(nn.Module):
                     nn.init.constant_(module.bias, 0)
     
     def forward(self, x):
-
-
-
-
-
-
-
-
         batch_size = x.size(0)
-        
-
         x = x.view(batch_size, self.seq_len, self.embedding_dim)
-        
-
-
         lstm_out, (h_n, c_n) = self.lstm(x)
-        
-
-
-        last_hidden = h_n[-1]  # (batch, hidden_dim)
-        
-
+        last_hidden = h_n[-1]  
         x = self.fc1(last_hidden)
         x = self.bn1(x)
         x = torch.relu(x)
@@ -124,13 +75,11 @@ class PhishingLSTM(nn.Module):
         logger.info("Testing PhishingLSTM")
         logger.info("="*60)
         
-        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        
+        device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')      
 
         model = PhishingLSTM(input_dim=2504, hidden_dim=256, num_layers=2)
         model = model.to(device)
         
-
         for batch_size in [1, 4, 8, 32]:
             x = torch.randn(batch_size, 2504, device=device)
             output = model(x)
@@ -139,9 +88,8 @@ class PhishingLSTM(nn.Module):
             assert not torch.isnan(output).any(), "NaN detected in output"
             assert not torch.isinf(output).any(), "Inf detected in output"
             
-            logger.info(f"✅ Batch size {batch_size}: Output shape {output.shape}")
+            logger.info(f"Batch size {batch_size}: Output shape {output.shape}")
         
-
         logger.info("\nTesting gradient flow...")
         x = torch.randn(8, 2504, device=device, requires_grad=True)
         output = model(x)
@@ -150,14 +98,13 @@ class PhishingLSTM(nn.Module):
         
         has_grad = any(p.grad is not None for p in model.parameters() if p.requires_grad)
         assert has_grad, "No gradients computed"
-        logger.info("✅ Gradient flow successful")
+        logger.info("Gradient flow successful")
         
         logger.info("\n" + "="*60)
-        logger.info("PhishingLSTM Test: PASSED ✅")
+        logger.info("PhishingLSTM Test: PASSED ")
         logger.info("="*60 + "\n")
         
         return True
-
 
 if __name__ == "__main__":
     logging.basicConfig(
