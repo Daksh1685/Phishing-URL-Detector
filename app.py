@@ -27,13 +27,17 @@ tab1, tab2, tab3, tab4 = st.tabs(["Check URL", "Batch Check", "History", "About"
 with tab1:
     st.header("Check Single URL")
     
-    with st.form(key="url_check_form"):
+    col1, col2 = st.columns([4, 1])
+    with col1:
         url_input = st.text_input(
             "Enter URL to check:",
             placeholder="e.g., http://example.com",
             key="single_url"
         )
-        check_button = st.form_submit_button("Check", use_container_width=True)
+    with col2:
+        st.write("")
+        st.write("")
+        check_button = st.button("Check", use_container_width=True, key="check_btn")
     
     if check_button and url_input:
         try:
