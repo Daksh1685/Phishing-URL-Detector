@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from datetime import datetime
-from models.ensemble_detector import PhishingRuleDetector
+from ensemble_detector import PhishingRuleDetector
 
 @st.cache_resource
 def load_detector():
