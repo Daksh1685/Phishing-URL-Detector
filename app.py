@@ -245,16 +245,16 @@ with tab4:
     
     st.markdown("## Features")
     st.write(
-        "✓ Single URL checking\n"
-        "✓ Batch CSV processing\n"
-        "✓ Detection history tracking\n"
-        "✓ CSV export capability\n"
-        "✓ Fast rule-based detection\n"
-        "✓ No external dependencies"
+        "Single URL checking\n"
+        "Batch CSV processing\n"
+        "Detection history tracking\n"
+        "CSV export capability\n"
+        "Fast rule-based detection\n"
+        "No external dependencies"
     )
     
     st.markdown("---")
-    st.caption("Phishing URL Detector v1.0 | Rule-Based Detection Engine")
+    st.caption("Phishing URL Detector v1.0 | Daksh Chaurasia")
 
 
 
