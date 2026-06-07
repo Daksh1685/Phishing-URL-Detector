@@ -192,6 +192,69 @@ with tab3:
 with tab4:
     st.header("About This Application")
     
+    st.markdown("## What is This?")
+    st.write(
+        "Phishing URL Detector is a rule-based security tool that identifies malicious URLs "
+        "without using heavy machine learning models. It uses pattern matching, brand spoofing detection, "
+        "and URL analysis to identify potential phishing attacks."
+    )
+    
+    st.markdown("## How It Works")
+    st.write(
+        "The detector analyzes URLs for:\n"
+        "- **Brand Spoofing**: Detects homograph attacks (paypa1.com, amaz0n.com)\n"
+        "- **Critical Patterns**: Identifies admin panels (/wp-admin/, /admin/, /dev/)\n"
+        "- **Suspicious Keywords**: Detects confirmation, verification, update pages\n"
+        "- **Suspicious Domains**: Analyzes domain characteristics"
+    )
+    
+    st.markdown("## Example URLs")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Phishing Examples")
+        phishing_examples = [
+            "http://paypa1.com/confirm",
+            "http://amaz0n-account.com/verify",
+            "http://g00gle.com/security/update",
+            "http://example.com/admin/",
+            "http://test.com/wp-admin/",
+        ]
+        for example in phishing_examples:
+            st.code(example, language="text")
+    
+    with col2:
+        st.subheader("Legitimate Examples")
+        legitimate_examples = [
+            "https://www.paypal.com",
+            "https://www.amazon.com",
+            "https://www.google.com",
+            "https://github.com",
+            "https://www.apple.com",
+        ]
+        for example in legitimate_examples:
+            st.code(example, language="text")
+    
+    st.markdown("## Privacy")
+    st.write(
+        "All URL analysis happens locally in your browser. "
+        "No URLs, data, or analysis results are sent to external servers. "
+        "Your privacy is completely protected."
+    )
+    
+    st.markdown("## Features")
+    st.write(
+        "✓ Single URL checking\n"
+        "✓ Batch CSV processing\n"
+        "✓ Detection history tracking\n"
+        "✓ CSV export capability\n"
+        "✓ Fast rule-based detection\n"
+        "✓ No external dependencies"
+    )
+    
+    st.markdown("---")
+    st.caption("Phishing URL Detector v1.0 | Rule-Based Detection Engine")
 
 
 
