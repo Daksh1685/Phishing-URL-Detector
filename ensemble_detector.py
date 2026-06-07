@@ -1,22 +1,9 @@
-
-
-
-
-
-
-
-
-
-
-
 import re
 from urllib.parse import urlparse
 from difflib import SequenceMatcher
 from typing import Tuple
 
-class PhishingRuleDetector:
-
-    
+class PhishingRuleDetector:    
     @staticmethod
     def levenshtein_ratio(s1: str, s2: str) -> float:
 
@@ -27,29 +14,17 @@ class PhishingRuleDetector:
     
     @staticmethod
     def is_brand_spoofing(url_part: str, brand: str, threshold: float = 0.85) -> bool:
-
-
-
-
-
-
-
-
-
-
-
-
         substitutions = {
-            'l': ['1', 'i', '|'],          # paypa1, paypai
-            'o': ['0'],                     # amaz0n
-            'e': ['3'],                     # appl3, verc3l
-            'a': ['4', '@'],                # p4ypal
-            's': ['5', '$'],                # p4ss
-            'g': ['9'],                     # goo9le
-            'b': ['8'],                     # fa8ook
-            'i': ['1', '!', 'j'],           # m1crosoft
-            't': ['+'],                     # microso+t
-            'z': ['2'],                     # amaz2n
+            'l': ['1', 'i', '|'],         
+            'o': ['0'],                    
+            'e': ['3'],                   
+            'a': ['4', '@'],               
+            's': ['5', '$'],              
+            'g': ['9'],                    
+            'b': ['8'],                    
+            'i': ['1', '!', 'j'],        
+            't': ['+'],                    
+            'z': ['2'],                   
         }
         
 
@@ -60,10 +35,8 @@ class PhishingRuleDetector:
         similarity = PhishingRuleDetector.levenshtein_ratio(url_part, brand)
         if similarity >= threshold:
             return True
-        
 
-
-        test_variants = [url_part]  # Start with original
+        test_variants = [url_part] 
         
         for original_char, replacements in substitutions.items():
             for replacement in replacements:
@@ -75,12 +48,10 @@ class PhishingRuleDetector:
 
         for variant in test_variants:
             variant_sim = PhishingRuleDetector.levenshtein_ratio(variant, brand)
-            if variant_sim >= 0.80:  # Lower threshold for variant matching
+            if variant_sim >= 0.80: 
                 return True
         
         return False
-    
-
     CRITICAL_PATTERNS = {
         '/wp-admin/': 'WordPress admin panel exposure',
         '/wp-admin': 'WordPress admin panel exposure',
@@ -126,17 +97,6 @@ class PhishingRuleDetector:
         self.protected_brands = self.PROTECTED_BRANDS
     
     def detect(self, url: str) -> Tuple[str, float, str]:
-
-
-
-
-
-
-
-
-
-
-
         try:
 
             parsed = urlparse(url)
@@ -167,7 +127,7 @@ class PhishingRuleDetector:
             
             for pattern, reason in self.suspicious_patterns.items():
                 if pattern.lower() in path:
-                    sus_conf = 0.70  # Base confidence for suspicious patterns
+                    sus_conf = 0.70 
                     if sus_conf > max_sus_conf:
                         max_sus_conf = sus_conf
                         sus_reason = reason
@@ -180,8 +140,6 @@ class PhishingRuleDetector:
             
         except Exception as e:
             return 'legitimate', 0.95, f"Could not parse URL: {str(e)}"
-
-
 
 def predict_url(url: str) -> Tuple[str, float, str]:
 

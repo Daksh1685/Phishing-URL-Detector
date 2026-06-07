@@ -13,19 +13,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from models.cnn_model import CNN1D, SimpleCNN1D, DeepCNN1D
-
-
 class CNNTrainer:
-
-    
     def __init__(self, model, device='cuda', learning_rate=0.001, weight_decay=1e-5):
-
-
-
-
-
-
-
 
         self.model = model.to(device)
         self.device = device
@@ -45,8 +34,6 @@ class CNNTrainer:
             self.optimizer,
             T_max=20
         )
-        
-
         self.train_losses = []
         self.val_losses = []
         self.train_accs = []
@@ -113,17 +100,6 @@ class CNNTrainer:
         return avg_loss, avg_acc
     
     def train(self, train_loader, val_loader, epochs=20, patience=5):
-
-
-
-
-
-
-
-
-
-
-
         best_val_acc = 0
         patience_counter = 0
         
@@ -180,14 +156,6 @@ class CNNTrainer:
         }
     
     def evaluate(self, test_loader):
-
-
-
-
-
-
-
-
         self.model.eval()
         
         all_logits = []
@@ -244,15 +212,6 @@ class CNNTrainer:
 
 
 def load_embeddings(data_dir='./data/embeddings', use_attention=True):
-
-
-
-
-
-
-
-
-
     print(f"\nLoading embeddings from {data_dir}...")
     
     if use_attention:
@@ -289,15 +248,6 @@ def load_embeddings(data_dir='./data/embeddings', use_attention=True):
 
 def train_cnn_model(model_type='standard', epochs=20, batch_size=128, 
                     use_attention=True, save_model=True):
-
-
-
-
-
-
-
-
-
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     
 
@@ -409,7 +359,6 @@ def train_cnn_model(model_type='standard', epochs=20, batch_size=128,
         print(f"✓ {pred_path}")
     
     return model, trainer, test_metrics
-
 
 if __name__ == "__main__":
 

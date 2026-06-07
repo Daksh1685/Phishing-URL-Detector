@@ -1,15 +1,3 @@
-
-
-
-
-
-
-
-
-
-
-
-
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -31,10 +19,6 @@ from utils.logger import setup_logger
 device = get_device()
 logger = setup_logger("WeightedFusion", "logs/weighted_fusion.log")
 
-
-
-
-
 CONFIG = {
     'embedding_dir': 'data/embeddings',
     'batch_size': 128,
@@ -43,17 +27,10 @@ CONFIG = {
     'weight_decay': 1e-5,
     'early_stopping_patience': 5,
     'checkpoint_dir': 'training/checkpoints/weighted_fusion',
-    'fusion_mode': 'weighted',  # 6 learnable parameters
-    'output_dim': 2504,  # Keep same as original concatenation
+    'fusion_mode': 'weighted', 
+    'output_dim': 2504, 
 }
-
-
-
-
-
-def load_embeddings():
-
-    
+def load_embeddings():  
     logger.info("=" * 80)
     logger.info("LOADING EMBEDDINGS")
     logger.info("=" * 80)
@@ -65,7 +42,7 @@ def load_embeddings():
     train_embeddings = []
     embedding_names = ['w2v', 'fasttext', 'glove', 'bert', 'roberta', 'gpt2']
     embedding_dims = []
-    loaded_names = []  # Track which embeddings were successfully loaded
+    loaded_names = [] 
     
     for name in embedding_names:
 
@@ -87,7 +64,7 @@ def load_embeddings():
     logger.info("\nTest embeddings:")
     test_embeddings = []
     
-    for name in loaded_names:  # Use the names that were actually loaded for training
+    for name in loaded_names:  
         pattern = f"test_{name}_vectors.npy"
         files = list(emb_dir.glob(pattern))
         
@@ -112,11 +89,6 @@ def load_embeddings():
     logger.info(f"          Test samples: {test_labels.shape[0]}")
     
     return train_embeddings, test_embeddings, train_labels, test_labels, embedding_dims
-
-
-
-
-
 def create_fusion_layer(embedding_dims):
 
     
@@ -139,14 +111,7 @@ def create_fusion_layer(embedding_dims):
     logger.info(f"  Learnable params: {num_params}")
     
     return fusion
-
-
-
-
-
-def train_epoch(model, fusion, train_embeddings, train_labels, optimizer, criterion, epoch, num_epochs):
-
-    
+def train_epoch(model, fusion, train_embeddings, train_labels, optimizer, criterion, epoch, num_epochs): 
     model.train()
     fusion.train()
     
@@ -191,13 +156,7 @@ def train_epoch(model, fusion, train_embeddings, train_labels, optimizer, criter
     
     return train_loss, train_acc
 
-
-
-
-
-def validate(model, fusion, test_embeddings, test_labels, criterion, epoch, num_epochs):
-
-    
+def validate(model, fusion, test_embeddings, test_labels, criterion, epoch, num_epochs): 
     model.eval()
     fusion.eval()
     
@@ -232,36 +191,18 @@ def validate(model, fusion, test_embeddings, test_labels, criterion, epoch, num_
     val_acc = val_correct / val_total
     
     return val_loss, val_acc
-
-
-
-
-
-def main():
-
     
+def main(): 
     logger.info("\n" * 2)
     logger.info("=" * 80)
     logger.info("WEIGHTED FUSION TRAINING - START".center(80))
     logger.info("=" * 80)
     
     logger.info(f"\nDevice: {device}")
-    logger.info(f"Config: {CONFIG}")
-    
-
-
-
-    
+    logger.info(f"Config: {CONFIG}") 
     train_embeddings, test_embeddings, train_labels, test_labels, embedding_dims = load_embeddings()
-    
-
-
-
-    
-
     fusion = create_fusion_layer(embedding_dims)
     
-
     logger.info("\n" + "=" * 80)
     logger.info("CREATING CNN MODEL")
     logger.info("=" * 80)
@@ -282,16 +223,10 @@ def main():
     logger.info(f"  Input dim: {CONFIG['output_dim']}")
     logger.info(f"  Output classes: 2")
     logger.info(f"  Total CNN params: {num_cnn_params:,}")
-    
-
-
-
-    
     logger.info("\n" + "=" * 80)
     logger.info("SETUP TRAINING")
     logger.info("=" * 80)
     
-
     all_params = list(model.parameters()) + list(fusion.parameters())
     optimizer = optim.Adam(all_params, lr=CONFIG['lr'], weight_decay=CONFIG['weight_decay'])
     scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=CONFIG['epochs'])
@@ -302,13 +237,8 @@ def main():
     logger.info(f"  Weight decay: {CONFIG['weight_decay']}")
     logger.info(f"  Total parameters: {num_cnn_params + sum(p.numel() for p in fusion.parameters()):,}")
     
-
     checkpoint_dir = Path(CONFIG['checkpoint_dir'])
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
-    
-
-
-
     
     logger.info("\n" + "=" * 80)
     logger.info("TRAINING")
@@ -330,11 +260,8 @@ def main():
             model, fusion, test_embeddings, test_labels, 
             criterion, epoch, CONFIG['epochs']
         )
-        
-
         scheduler.step()
-        
-
+    
         logger.info(f"\nEpoch {epoch}/{CONFIG['epochs']}")
         logger.info(f"  Train: Loss {train_loss:.4f}, Acc {train_acc:.4f}")
         logger.info(f"  Val:   Loss {val_loss:.4f}, Acc {val_acc:.4f}")
@@ -360,11 +287,7 @@ def main():
             if patience_counter >= CONFIG['early_stopping_patience']:
                 logger.info(f"\n[EARLY STOPPING] No improvement for {CONFIG['early_stopping_patience']} epochs")
                 break
-    
-
-
-
-    
+     
     logger.info("\n" + "=" * 80)
     logger.info("FINAL EVALUATION")
     logger.info("=" * 80)
@@ -401,8 +324,6 @@ def main():
         
         all_preds = np.concatenate(all_preds)
         all_labels = np.concatenate(all_labels)
-    
-
     accuracy = (all_preds == all_labels).mean()
     
     logger.info(f"\n[OK] Test Set Accuracy: {accuracy:.4f}")
@@ -423,10 +344,5 @@ def main():
     logger.info(f"\nModel saved to: {checkpoint_path}")
     logger.info(f"Logs saved to: logs/weighted_fusion.log")
     logger.info("\nNext: Run evaluation/evaluate_weighted_fusion.py to visualize results")
-
-
-
-
-
 if __name__ == "__main__":
     main()

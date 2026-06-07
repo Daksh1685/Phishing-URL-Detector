@@ -1,9 +1,3 @@
-
-
-
-
-
-
 import torch
 import torch.nn as nn
 import logging
@@ -21,37 +15,10 @@ except ImportError:
     chaotic_init = None
 
 
-class ChaoticLSTM(nn.Module):
-
-
-
-
-
-
-
-
-
-
-
-
-    
+class ChaoticLSTM(nn.Module): 
     def __init__(self, input_dim=2504, hidden_dim=256, num_layers=2, dropout=0.3, 
                  num_classes=2, use_chaos=True, use_chaotic_layer=False, 
                  r=3.99, x0=0.5, epsilon=0.005):
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         super(ChaoticLSTM, self).__init__()
         
         self.input_dim = input_dim
@@ -108,10 +75,6 @@ class ChaoticLSTM(nn.Module):
                     nn.init.constant_(module.bias, 0)
     
     def _apply_chaotic_initialization(self):
-
-
-
-
 
         logger.info("\n" + "="*60)
         logger.info("APPLYING CHAOTIC INITIALIZATION TO LSTM")
@@ -178,28 +141,16 @@ class ChaoticLSTM(nn.Module):
             self._init_weights()
     
     def _logistic_map_tensor(self, x, iterations=100):
-
-
-
-
-
-
-
-
-
         device = x.device
         r = torch.tensor(self.r, dtype=torch.float32, device=device)
         x0 = torch.tensor(self.x0, dtype=torch.float32, device=device)
         
-
         sequence = []
         x_curr = x0
         
-
         for _ in range(20):
             x_curr = r * x_curr * (1 - x_curr)
         
-
         for _ in range(iterations):
             x_curr = r * x_curr * (1 - x_curr)
             sequence.append(x_curr)
@@ -207,22 +158,8 @@ class ChaoticLSTM(nn.Module):
         return torch.stack(sequence)
     
     def forward(self, x, return_perturbation=False):
-
-
-
-
-
-
-
-
-
-
         batch_size = x.size(0)
-        
-
         x = x.view(batch_size, self.seq_len, self.embedding_dim)
-        
-
         if self.use_chaotic_layer and self.training:
             with torch.no_grad():
                 perturbation = self._generate_chaotic_perturbation(x)
@@ -230,14 +167,10 @@ class ChaoticLSTM(nn.Module):
             perturbation_magnitude = perturbation.abs().max().item()
         else:
             perturbation_magnitude = 0.0
-        
-
         lstm_out, (h_n, c_n) = self.lstm(x)
         
-
-        last_hidden = h_n[-1]  # (batch, hidden_dim)
+        last_hidden = h_n[-1] 
         
-
         x = self.fc1(last_hidden)
         x = self.bn1(x)
         x = torch.relu(x)
@@ -248,7 +181,6 @@ class ChaoticLSTM(nn.Module):
         x = torch.relu(x)
         x = self.dropout2(x)
         
-
         logits = self.fc_out(x)
         
         if return_perturbation:
@@ -256,15 +188,11 @@ class ChaoticLSTM(nn.Module):
         return logits
     
     def _generate_chaotic_perturbation(self, x):
-
-
         x_norm = (x - x.min()) / (x.max() - x.min() + 1e-8)
         
-
         r = torch.tensor(self.r, dtype=x.dtype, device=x.device)
         x_chaos = r * x_norm * (1 - x_norm)
         
-
         x_chaos = 2 * x_chaos - 1
         
 
@@ -305,7 +233,7 @@ class ChaoticLSTM(nn.Module):
             assert not torch.isnan(output).any(), "NaN detected"
             assert not torch.isinf(output).any(), "Inf detected"
             
-            logger.info(f"✅ Batch {batch_size}: Output {output.shape}")
+            logger.info(f"Batch {batch_size}: Output {output.shape}")
         
 
         model_with_layer = ChaoticLSTM(input_dim=2504, use_chaos=True, use_chaotic_layer=True)
@@ -315,7 +243,7 @@ class ChaoticLSTM(nn.Module):
         x = torch.randn(8, 2504, device=device)
         output, pert_mag = model_with_layer(x, return_perturbation=True)
         
-        logger.info(f"✅ With perturbation layer: Magnitude {pert_mag:.6f}")
+        logger.info(f"With perturbation layer: Magnitude {pert_mag:.6f}")
         
 
         logger.info("\nTesting gradient flow...")
@@ -326,10 +254,10 @@ class ChaoticLSTM(nn.Module):
         
         has_grad = any(p.grad is not None for p in model.parameters() if p.requires_grad)
         assert has_grad, "No gradients"
-        logger.info("✅ Gradient flow successful")
+        logger.info("Gradient flow successful")
         
         logger.info("\n" + "="*60)
-        logger.info("ChaoticLSTM Test: PASSED ✅")
+        logger.info("ChaoticLSTM Test: PASSED")
         logger.info("="*60 + "\n")
         
         return True
