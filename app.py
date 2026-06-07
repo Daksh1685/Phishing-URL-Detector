@@ -156,7 +156,6 @@ with tab2:
             mime="text/csv"
         )
 
-
 with tab3:
     st.header("Detection History")
     
